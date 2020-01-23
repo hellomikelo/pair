@@ -1,26 +1,21 @@
-
 """
-Hyperparameters modified from Greg Surma's Github repo: 
-https://github.com/gsurma/style_transfer
+Parameters to be loaded into the main model. 
 """
-# Inputs
-HOME_DIR = ''
-INPUT_IMAGE_PATH = HOME_DIR + "input.png"
-STYLE_IMAGE_PATH = HOME_DIR + "style.png"
-OUTPUT_IMAGE_PATH = HOME_DIR + "output.png"
-COMBINED_IMAGE_PATH = HOME_DIR + "../output/image_result.png"
+import time
 
-# Hyperparameters
-ITERATIONS = 2
-CHANNELS = 3
+# user inputs (CHANGE HERE!) 
+# ==========================================================
+QUERY_IMAGE_PATH 		= '../data/dining_table/902.224.07.jpg'
+IMAGE_LIBRARY_PATH 		= '../data/chair/'
+FEATURE_LIBRARY_PATH 	= '../output/indexes/feature_library/'
+OUTPUT_IMAGE_PATH 		= '../output/result-' + time.strftime('%Y%m%d-%H%M') + '.png'
+N_RESULTS 				= 5
+# ==========================================================
+
+# ignore these
 IMAGE_SIZE = 500
 IMAGE_WIDTH = IMAGE_SIZE
 IMAGE_HEIGHT = IMAGE_SIZE
-IMAGENET_MEAN_RGB_VALUES = [123.68, 116.779, 103.939]
-CONTENT_WEIGHT = 0.02
-STYLE_WEIGHT = 4.5
-TOTAL_VARIATION_WEIGHT = 0.995
-TOTAL_VARIATION_LOSS_FACTOR = 1.25
 
 # VGG16 layer names for content and style extraction
 CONTENT_LAYERS = ["block2_conv2"]

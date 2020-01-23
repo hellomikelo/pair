@@ -15,6 +15,7 @@ import random
 import re
 
 from utils import load_image, get_image_paths
+from configs import *
 
 
 class Stack(ABC):
@@ -37,11 +38,11 @@ class Stack(ABC):
     def __init__(self):
         self.valid_paths = []
         self.invalid_paths = []
-        self.lib_name = None
         self.vector_buffer_size = None
         self.index_buffer_size = None
         self.pca_dim = None
         self.model = None
+        self.lib_path = FEATURE_LIBRARY_PATH
         self.layer_names = None
         self._file_mapping = None
         self._partitions = None
@@ -56,11 +57,11 @@ class Stack(ABC):
 
     @classmethod
     @abstractmethod
-    def load(cls, lib_name, layer_range=None, model=None):
+    def load(cls, lib_path, layer_range=None, model=None):
         pass
 
     @abstractmethod
-    def save(self, lib_name):
+    def save(self, lib_path):
         pass
 
     @abstractmethod
@@ -80,7 +81,7 @@ class Stack(ABC):
     @property
     def partitions(self):
         if self._partitions is None:
-            input_dir = f'../data/indexes/{self.lib_name}/'
+            input_dir = self.lib_path
             index_paths = glob.glob(os.path.join(input_dir, 'index-*.index'))
             if not index_paths:
                 self._partitions = False
@@ -204,7 +205,6 @@ class StyleStack(Stack):
                 saved unless the `inst.save` method is run.
         """
         inst = cls()
-        inst.lib_name = None
         inst.vector_buffer_size = vector_buffer_size
         inst.index_buffer_size = index_buffer_size
         inst.pca_dim = pca_dim
@@ -221,7 +221,7 @@ class StyleStack(Stack):
         return inst
 
     @classmethod
-    def load(cls, lib_name, layer_range=None, model=None):
+    def load(cls, lib_path, layer_range=None, model=None):
         """
 
         Args:
@@ -241,15 +241,13 @@ class StyleStack(Stack):
         Returns:
 
         """
-        input_dir = f'../data/indexes/{lib_name}/'
         inst = cls()
-        inst.lib_name = lib_name
 
         # invalid paths have already been filtered out
         inst.invalid_paths = None
 
         # load metadata
-        with open(os.path.join(input_dir, 'meta.json')) as f:
+        with open(os.path.join(lib_path, 'meta.json')) as f:
             json_str = json.load(f)
             metadata = {str(k): v for k, v in json_str.items()}
         inst._pca_id = metadata['pca']
@@ -265,12 +263,12 @@ class StyleStack(Stack):
         inst._build_image_embedder(layer_range)
 
         # load file mapping
-        with open(os.path.join(input_dir, 'file_mapping.json')) as f:
+        with open(os.path.join(lib_path, 'file_mapping.json')) as f:
             json_str = json.load(f)
             inst.file_mapping = {int(k): str(v) for k, v in json_str.items()}
 
         # load indexes and check for partitioning
-        index_paths = glob.glob(os.path.join(input_dir, 'grams-*.index'))
+        index_paths = glob.glob(os.path.join(lib_path, 'grams-*.index'))
         sample_path = index_paths[0]
         if 'part' in sample_path:
             inst.partitioned = True
@@ -280,7 +278,7 @@ class StyleStack(Stack):
             inst.index_dict = {}
             for f in index_paths:
                 index = faiss.read_index(f)
-                layer_name = re.search(f'{input_dir}grams-(.+?)\.index', f).group(1)
+                layer_name = re.search(f'{lib_path}grams-(.+?)\.index', f).group(1)
                 inst.index_dict.update({layer_name: index})
 
         # set up generator to load partitions
@@ -294,21 +292,19 @@ class StyleStack(Stack):
     def add(self, image_dir):
         pass
 
-    def save(self, lib_name):
-        self.lib_name = lib_name
-        output_dir = f'../data/indexes/{lib_name}/'
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+    def save(self, lib_path):
+        if not os.path.exists(lib_path):
+            os.makedirs(lib_path)
         for layer_name, index in self.index_dict.items():
             filename = f'grams-{layer_name}.index'
-            filepath = os.path.join(output_dir, filename)
+            filepath = os.path.join(lib_path, filename)
             faiss.write_index(index, filepath)
 
-        mapping_path = os.path.join(output_dir, 'file_mapping.json')
+        mapping_path = os.path.join(lib_path, 'file_mapping.json')
         with open(mapping_path, 'w') as f:
             json.dump(self.file_mapping, f)
 
-        metadata_path = os.path.join(output_dir, 'meta.json')
+        metadata_path = os.path.join(lib_path, 'meta.json')
         with open(metadata_path, 'w') as f:
             json.dump(self.metadata, f)
 
@@ -343,8 +339,6 @@ class StyleStack(Stack):
             dist_dict[layer_name] = {idx: norm_distances[i] for i, idx in
                                      enumerate(proximal_indices)}
 
-        print(dist_dict)
-
         weighted_dist_dict = {}
         for idx in proximal_indices:
             weighted_dist = sum(
@@ -353,22 +347,19 @@ class StyleStack(Stack):
 
             weighted_dist_dict[idx] = weighted_dist
 
-        print(weighted_dist_dict)
-
         indices = sorted(weighted_dist_dict, key=weighted_dist_dict.get)
         results_indices = indices[:n_results]
 
         end = dt.datetime.now()
         index_time = (end - start).microseconds / 1000
-        print(f'query time: {index_time} ms')
-        print(results_indices)
+        print(f'==> Query time: {index_time} ms')
         results_files = [self.file_mapping[i] for i in results_indices]
         results = {
             'query_img': image_path,
             'results_files': results_files,
             'similarity_weights': embedding_weights,
             'model': self.model.name,
-            'lib_name': self.lib_name,
+            'lib_path': self.lib_path,
             'n_images': len(self.file_mapping),
             'invalid_paths': self.invalid_paths,
         }
@@ -423,9 +414,9 @@ class StyleStack(Stack):
         for layer, emb in img_embeddings.items():
             gram_vec = self.gram_vector(emb)
             gram_vec = np.expand_dims(gram_vec, axis=0)
-            if self._pca_id:
-                transformer = self._load_transformer(self._pca_id, layer)
-                gram_vec = transformer.transform(gram_vec)
+            # if self._pca_id: #yhl
+            #     transformer = self._load_transformer(self._pca_id, layer)
+            #     gram_vec = transformer.transform(gram_vec)
             gram_dict[layer] = gram_vec
         return gram_dict
 
@@ -454,7 +445,7 @@ class StyleStack(Stack):
 
             except Exception as e:
                 # TODO: add logging
-                print(f'Embedding error: {e.args}')
+                print(f'==> Embedding error: {e.args}')
                 self.invalid_paths.append(path)
                 continue
 
@@ -492,23 +483,23 @@ class StyleStack(Stack):
 
             if i % self.vector_buffer_size == 0 and i > 0:
                 self._index_vectors()
-                print(f'images {i - self.vector_buffer_size} - {i} indexed')
+                print(f'==> images {i - self.vector_buffer_size} - {i} indexed')
 
             if i % self.index_buffer_size == 0 and i > 0:
                 in_memory = False
                 part_num = ceil(i / self.index_buffer_size)
-                self._save_indexes(self.lib_name, part_num)
+                self._save_indexes(self.lib_path, part_num)
 
         if self.vector_buffer:
 
             self._index_vectors()
             if not in_memory:
                 part_num += 1
-                self._save_indexes(self.lib_name, part_num)
+                self._save_indexes(self.lib_path, part_num)
 
         end = dt.datetime.now()
         index_time = (end - start).microseconds / 1000
-        print(f'index time: {index_time} ms')
+        print(f'==> index time: {index_time} ms')
 
     def _index_vectors(self):
         """
@@ -536,23 +527,21 @@ class StyleStack(Stack):
             self.index_dict[layer].add(np.ascontiguousarray(gram_block))
             self.vector_buffer = [[] for _ in range(len(self.vector_buffer))]
 
-    def _save_indexes(self, lib_name, part_num):
+    def _save_indexes(self, lib_path, part_num):
         if self.vector_buffer:
             self._index_vectors()
 
-        self.lib_name = lib_name
-        output_dir = f'../data/indexes/{lib_name}/'
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+        if not os.path.exists(lib_path):
+            os.makedirs(lib_path)
         for layer_name, index in self.index_dict.items():
             filename = f'grams-{layer_name}-part_{part_num}.index'
-            filepath = os.path.join(output_dir, filename)
+            filepath = os.path.join(lib_path, filename)
             faiss.write_index(index, filepath)
             self.index_dict = {}
 
         # save metadata
         if part_num == 1:
-            metadata_path = os.path.join(output_dir, 'meta.json')
+            metadata_path = os.path.join(lib_path, 'meta.json')
             with open(metadata_path, 'w') as f:
                 json.dump(self.metadata, f)
 
@@ -581,10 +570,10 @@ class SemanticStack(Stack):
         pass
 
     @classmethod
-    def load(cls, lib_name, layer_range=None, model=None):
+    def load(cls, lib_path, layer_range=None, model=None):
         pass
 
-    def save(self, lib_name):
+    def save(self, lib_path):
         pass
 
     def query(self, image_path, embedding_weights=None, n_results=5,

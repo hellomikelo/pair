@@ -8,6 +8,9 @@ import numpy as np
 import os
 import random
 
+from configs import *
+from PIL import Image
+
 
 def load_image(path, target_size):
     # TODO: compare to vgg19.preprocess input
@@ -17,6 +20,14 @@ def load_image(path, target_size):
     x = preprocess_input(x)
     return img, x
 
+def save_image(results_paths, output_dir='../output/'):
+    print(f'Result image saved to {output_dir}')
+    combined = Image.new("RGB", (IMAGE_WIDTH*len(results_paths), IMAGE_HEIGHT))
+    x_offset = 0
+    for image in map(Image.open, results_paths):
+        combined.paste(image, (x_offset, 0))
+        x_offset += IMAGE_WIDTH
+    combined.save(output_dir) 
 
 def get_image_paths(images_dir, max_num_images=10000):
     image_extensions = ['.jpg', '.png', '.jpeg']
@@ -43,7 +54,6 @@ def get_concatenated_images(image_paths, image_indices=None, thumb_height=300):
         thumbs.append(img)
     concat_image = np.concatenate([np.asarray(t) for t in thumbs], axis=1)
     return concat_image
-
 
 def plot_results(results):
     if isinstance(results, str):
