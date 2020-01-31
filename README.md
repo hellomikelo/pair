@@ -1,5 +1,5 @@
 # ai-curator
-Deep Style Curator is an image-based product recommender for finding visually similar furnitures across different categories. The user provides an image of a furniture he or she likes, and the model will return a series of furnitures from other categories that are similar in design. In short, the model uses a convolutional neural network (VGG16) to learn and build a library of designs of collections of furnitures. Then when a new image is introduced, the model queries the new image  with the library to recommend other products of similar design that the user may like.
+AI Curator is an image-based product recommender for finding visually similar furnitures across different categories. The user provides an image of a furniture he or she likes, and the model will return a series of furnitures from other categories that are similar in design. In short, the model uses a convolutional neural network (VGG16) to learn and build a library of designs of collections of furnitures. Then when a new image is introduced, the model queries the new image  with the library to recommend other products of similar design that the user may like.
 
 This repository contains two main modules:
 1. __Recommender module__: It generates design feature extractors and makes furniture recommendations based on user input images
