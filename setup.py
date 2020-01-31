@@ -1,7 +1,7 @@
 from setuptools import find_packages
 from setuptools import setup
 
-REQUIRED_PACKAGES = ['some_PyPI_package>=1.0']
+REQUIRED_PACKAGES = ['scikit-learn>=0.20.4', 'pandas>=0.24.0']
 
 setup(
     name='trainer',
