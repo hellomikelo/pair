@@ -12,7 +12,7 @@ import yaml
 import tensorflow as tf
 
 
-def load_configs(config_path):
+def load_config(config_path):
 	with open(config_path, 'r') as stream:
 	    try:
 	        configs = yaml.safe_load(stream)

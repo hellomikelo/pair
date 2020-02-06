@@ -1,0 +1,19 @@
+QUERY_IMAGE_PATH: ./data/objects/902.782.77.jpg
+
+LIB_TYPE: dining_table
+IMAGE_LIBRARY_PATH: ./data/dining_table/
+FEATURE_LIBRARY_PATH: ./output/indexes/feat_lib_dining_table/
+TRUTH_FPATH: ./data/text_data/item_to_room.p
+OUTPUT_IMAGE_PATH: ./output/output_image.png
+
+MODEL_TYPE: "transfer_learn" # transfer_learn, vgg16
+MODEL_PATH: ./output/final_model.h5
+LAYER_NAMES: 
+  - block1_conv1
+  - block1_conv2
+IMAGE_SIZE: 500
+IMAGE_WIDTH: IMAGE_SIZE
+IMAGE_HEIGHT: IMAGE_SIZE
+
+SAVE_LIB: False
+N_RESULTS: 4

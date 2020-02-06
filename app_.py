@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from utils import plot_results, save_image, get_result_images, build_montages, load_image
-from style_stack import StyleStack
+from pair.utils import plot_results, save_image, get_result_images, build_montages, load_image
+from pair.style_stack import StyleStack
 import os
 import math
 
@@ -16,8 +16,8 @@ which furniture you'd like to see recommendations for.
 """)
 
 # initial parameters
-DATA_ROOT = '../data/'
-FEAT_LIB_ROOT = '../output/indexes/'
+DATA_ROOT = './data/'
+FEAT_LIB_ROOT = './output/indexes/'
 N_RESULTS = 4
 MONTAGE_COL = 5
 

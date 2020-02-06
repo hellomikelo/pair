@@ -1,3 +1,5 @@
+from .utils import load_image, get_image_paths
+
 from abc import ABC, abstractclassmethod, abstractmethod
 import datetime as dt
 import faiss
@@ -13,9 +15,7 @@ import pickle
 from sklearn.decomposition import PCA
 import random
 import re
-
-from utils import load_image, get_image_paths
-from configs import *
+import yaml
 
 class Stack(ABC):
     models = {
@@ -34,19 +34,19 @@ class Stack(ABC):
         'xception': apps.xception.Xception,
     }
 
-    def __init__(self):
+    def __init__(self, lib_path):
         self.valid_paths = []
         self.invalid_paths = []
         self.vector_buffer_size = None
         self.index_buffer_size = None
         self.pca_dim = None
         self.model = None
-        self.lib_path = FEATURE_LIBRARY_PATH
         self.layer_names = None
         self._file_mapping = None
         self._partitions = None
         self._transformer = None
         self._pca_id = None
+        self.lib_path = lib_path
 
     @classmethod
     @abstractmethod
@@ -80,8 +80,7 @@ class Stack(ABC):
     @property
     def partitions(self):
         if self._partitions is None:
-            input_dir = self.lib_path
-            index_paths = glob.glob(os.path.join(input_dir, 'index-*.index'))
+            index_paths = glob.glob(os.path.join(self.lib_path, 'index-*.index'))
             if not index_paths:
                 self._partitions = False
             else:
@@ -157,7 +156,7 @@ class StyleStack(Stack):
         >>>                       write_output=True)
     """
     @classmethod
-    def build(cls, image_dir, model, layer_range=None, pca_dim=None,
+    def build(cls, image_dir, lib_path, model, layer_range=None, pca_dim=None,
               vector_buffer_size=2000, index_buffer_size=5000, max_files=2000):
         """
         Use this constructor when you do not have a preexisting gram matrix
@@ -216,7 +215,7 @@ class StyleStack(Stack):
         inst.model = model
         inst._build_image_embedder(layer_range)
         inst._embedding_gen = inst._gen_lib_embeddings(image_paths)
-        inst._build_index()
+        inst._build_index(lib_path)
         return inst
 
     @classmethod
@@ -240,7 +239,7 @@ class StyleStack(Stack):
         Returns:
 
         """
-        inst = cls()
+        inst = cls(lib_path)
 
         # invalid paths have already been filtered out
         inst.invalid_paths = None
@@ -307,7 +306,7 @@ class StyleStack(Stack):
         with open(metadata_path, 'w') as f:
             json.dump(self.metadata, f)
 
-    def query(self, image_path, embedding_weights=None, n_results=5,
+    def query(self, image_path, lib_path, embedding_weights=None, n_results=5,
               write_output=True):
         # TODO: refactor
         # TODO: create seperate query class, which has attributes like distances by layer, etc. This will be cleaner and allow sliders without re-running query
@@ -360,7 +359,7 @@ class StyleStack(Stack):
             'results_files': self.results_files,
             'similarity_weights': embedding_weights,
             'model': self.model.name,
-            'lib_path': self.lib_path,
+            'lib_path': lib_path,
             'n_images': len(self.file_mapping),
             'invalid_paths': self.invalid_paths,
         }
@@ -381,6 +380,7 @@ class StyleStack(Stack):
         # find all products that appear in same room as query product
 
         # check which recommended products also appear in product catalog
+        pass
 
 
 
@@ -470,7 +470,7 @@ class StyleStack(Stack):
         return image_embeddings
 
     # TODO: split into gen_gram_matrices and _build_index, then combine gen_gram_matrices with build_query_gram_dict
-    def _build_index(self):
+    def _build_index(self, lib_path):
         start = dt.datetime.now()
         in_memory = True
         part_num = 0
@@ -499,14 +499,13 @@ class StyleStack(Stack):
             if i % self.index_buffer_size == 0 and i > 0:
                 in_memory = False
                 part_num = ceil(i / self.index_buffer_size)
-                self._save_indexes(self.lib_path, part_num)
+                self._save_indexes(lib_path, part_num)
 
         if self.vector_buffer:
-
             self._index_vectors()
             if not in_memory:
                 part_num += 1
-                self._save_indexes(self.lib_path, part_num)
+                self._save_indexes(lib_path, part_num)
 
         end = dt.datetime.now()
         index_time = (end - start).microseconds / 1000

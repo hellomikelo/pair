@@ -8,9 +8,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import random
+import yaml
 
-from configs import *
 from PIL import Image, ImageFont, ImageDraw
+
+def load_config(config_path):
+    with open(config_path, 'r') as stream:
+        try:
+            config = yaml.safe_load(stream)
+            print(yaml.safe_load(stream))
+        except yaml.YAMLError as exc:
+            print(exc)
+    return config
 
 def load_image(path, target_size=None):
     # TODO: compare to vgg19.preprocess input
@@ -62,7 +71,7 @@ def get_concatenated_images(image_paths, image_indices=None, thumb_height=300):
         image_paths = [image_paths[i] for i in image_indices]
     thumbs = []
     for path in image_paths:
-        img = image.load_img(path)
+        img = image.load_img(path[1:]) # [1:] to access current folder directory
         img = img.resize((int(img.width * thumb_height / img.height), thumb_height))
         thumbs.append(img)
     concat_image = np.concatenate([np.asarray(t) for t in thumbs], axis=1)
