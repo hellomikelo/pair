@@ -1,10 +1,10 @@
 FROM python:3.6
 
 COPY requirements.txt /tmp
-# COPY data/images /tmp/data/images
-# COPY data/text_data /tmp/data/text_data
-# COPY data/room_scenes /tmp/data/room_scenes
-# COPY trainer /tmp/trainer
+COPY data/images /tmp/data/images
+COPY data/text_data /tmp/data/text_data
+COPY data/room_scenes /tmp/data/room_scenes
+COPY trainer /tmp/trainer
 
 CMD ["/bin/bash"]
 
