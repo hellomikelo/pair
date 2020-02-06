@@ -1,9 +1,15 @@
-FROM python:3.5
+FROM python:3.6
 
 COPY requirements.txt /tmp
-COPY data/ /tmp/
-COPY trainer/ /tmp/
+# COPY data/images /tmp/data/images
+# COPY data/text_data /tmp/data/text_data
+# COPY data/room_scenes /tmp/data/room_scenes
+# COPY trainer /tmp/trainer
+
+CMD ["/bin/bash"]
 
 WORKDIR /tmp
 RUN pip install -r requirements.txt
+RUN pip install faiss-cpu --no-cache
 RUN apt-get update && apt-get install -y vim
+

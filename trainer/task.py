@@ -15,10 +15,7 @@ from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.applications.vgg16 import VGG16
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.callbacks import ModelCheckpoint
 import tensorflow as tf
-
-
 
 """ 
 Transfer learning using VGG16 to train a furniture collection classifier. 
@@ -47,15 +44,15 @@ def get_args():
 		default='./output/',type=str,
 		help='default output save directory')  
 	parser.add_argument(
-		'--cpt-path',
-		default='./output/weights.best.hdf5',
-		type=str,
-		help='checkpoint path')  	
-	parser.add_argument(
 		'--num-epochs',
 		type=int,
 		default=2,
 		help='number of times to go through the data, default=2')
+	parser.add_argument(
+		'--test-size',
+		default=0.1,
+		type=float,
+		help='percentage of data for testing, default=0.1')  
 	parser.add_argument(
 		'--batch-size',
 		default=10,
@@ -77,14 +74,18 @@ def get_args():
 def train_and_evaluate(args):
 
 	# load the filenames of all room_scenes as classes for classification
-	# classes = util.load_classes('./data/room_scenes')
 	classes = util.load_classes(args)
 
 	# load data labels
 	df_labels = util.make_labels_df(args)
+	df_train, df_test = train_test_split(df_labels, test_size=0.1)
 
 	# create data generator
-	train_datagen = ImageDataGenerator(featurewise_center=True, horizontal_flip=True, vertical_flip=True, rotation_range=90)
+	train_datagen = ImageDataGenerator(
+		featurewise_center=True, 
+		horizontal_flip=True, 
+		vertical_flip=True, 
+		rotation_range=90)
 	test_datagen = ImageDataGenerator(featurewise_center=True)
 
 	# specify imagenet mean values for centering
@@ -92,11 +93,8 @@ def train_and_evaluate(args):
 	test_datagen.mean = [123.68, 116.779, 103.939]
 	
 	# prepare iterators
-	# train_it = train_datagen.flow(trainX, trainY, batch_size=128)
-	# test_it = test_datagen.flow(testX, testY, batch_size=128)
-
 	train_it = train_datagen.flow_from_dataframe(
-	    dataframe=df_labels[0:100],
+	    dataframe=df_train,
 	    directory=os.path.join(args.data_dir, 'images'),
 	    x_col="file_name",
 	    y_col="room_name",
@@ -108,7 +106,7 @@ def train_and_evaluate(args):
 	    target_size=(128, 128))
 
 	test_it = test_datagen.flow_from_dataframe(
-	    dataframe=df_labels[100:200],
+	    dataframe=df_test,
 	    directory=os.path.join(args.data_dir, 'images'), 
 	    x_col="file_name",
 	    y_col="room_name",
@@ -128,12 +126,6 @@ def train_and_evaluate(args):
 	print('> len(train_it) = {}'.format(len(train_it)))
 	print('> len(test_it) = {}'.format(len(test_it)))
 
-	# create checkpoints
-	# filepath=os.path.join(args.cpt_path, 'weights-improvement-{epoch:02d}-{val_loss:.2f}.hdf5')
-	# checkpoint = ModelCheckpoint(filepath, verbose=1, save_best_only=True, mode='max', period=2)
-	# # checkpoint = ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')
-	# callbacks_list = [checkpoint]	
-
 	history = keras_model.fit_generator(train_it, 
 		steps_per_epoch=len(train_it),
 		validation_data=test_it, 
@@ -151,13 +143,9 @@ def train_and_evaluate(args):
 		os.makedirs(args.out_dir)  
 	keras_model.save(os.path.join(args.out_dir, 'final_model.h5'))
 	
-	# learning curves (doesn't work on headless server, i.e. GCP)
+	# learning curves
 	util.summarize_diagnostics(history, os.path.join(args.out_dir, 'diagnostics.png'))
 	
-	# model.load_weights("weights.best.hdf5")
-	# # Compile model (required to make predictions)
-	# model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-	# print("Created model and loaded weights from file")
  
 if __name__ == '__main__':
 	args = get_args()

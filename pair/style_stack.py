@@ -4,8 +4,8 @@ import faiss
 import glob
 import joblib as job
 import json
-import keras.applications as apps
-import keras.backend as K
+import tensorflow.keras.applications as apps
+import tensorflow.keras.backend as K
 from math import ceil
 import numpy as np
 import os
@@ -16,7 +16,6 @@ import re
 
 from utils import load_image, get_image_paths
 from configs import *
-
 
 class Stack(ABC):
     models = {
@@ -175,7 +174,7 @@ class StyleStack(Stack):
         Args:
             image_dir (str): directory containing images to be indexed
 
-            model (keras.engine.training.Model): model from which to extract
+            model (tensorflow.keras.engine.training.Model): model from which to extract
                 embeddings.
 
             layer_range (None, iterable[str]): A two item iterable containing the
@@ -184,7 +183,7 @@ class StyleStack(Stack):
                 except for input. Note that the gram matrix computations do not
                 work on dense layers, so if the model has dense layers, they
                 should be excluded with this argument or loaded with
-                `include_top=False` in keras.
+                `include_top=False` in tensorflow.keras.
 
             vector_buffer_size (int): number of embeddings to load into memory
                 before indexing them. Reduce this if your system runs out of
@@ -232,9 +231,9 @@ class StyleStack(Stack):
             model: Model to embed query images. It must be the same as the model
                 used to embed the reference library. If `None`, the model name
                 will be gathered from the metadata, and it will be loaded from
-                `keras.applications` with `weights='imagenet'` and
+                `tensorflow.keras.applications` with `weights='imagenet'` and
                 `include_top=False`. If the model used to build the original
-                `StyleStack` is not part of `keras.applications` or did not use
+                `StyleStack` is not part of `tensorflow.keras.applications` or did not use
                 imagenet weights, the model will not be generated correctly from
                 metadata and must be passed in via this argument
 
@@ -352,11 +351,13 @@ class StyleStack(Stack):
 
         end = dt.datetime.now()
         index_time = (end - start).microseconds / 1000
+        
         print(f'==> Query time: {index_time} ms')
         results_files = [self.file_mapping[i] for i in results_indices]
+        self.results_files = results_files
         results = {
             'query_img': image_path,
-            'results_files': results_files,
+            'results_files': self.results_files,
             'similarity_weights': embedding_weights,
             'model': self.model.name,
             'lib_path': self.lib_path,
@@ -372,6 +373,16 @@ class StyleStack(Stack):
             with open(output_file, 'w') as f:
                 json.dump(results, f)
         return results
+
+    def hits_at_k(self, truth):
+        # hit rate at k as a metric for recommender system
+        # truth:    
+
+        # find all products that appear in same room as query product
+
+        # check which recommended products also appear in product catalog
+
+
 
     def query_dist(self, query_img_path, ref_path_list, embedding_weights):
         q_emb_list = self._embed_image(query_img_path)
@@ -399,8 +410,7 @@ class StyleStack(Stack):
         if np.ndim(x) == 4 and x.shape[0] == 1:
             x = x[0, :]
         elif np.ndim != 3:
-            # TODO: make my own error
-            raise ValueError()
+            raise ValueError('Array dimension mismatch')
         x = x.reshape(x.shape[-1], -1)
         gram_mat = np.dot(x, np.transpose(x))
         mask = np.triu_indices(len(gram_mat), 1)

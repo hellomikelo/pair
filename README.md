@@ -27,7 +27,7 @@ Or if you prefer to use conda,
 
 ### Usage
 
-To run the prototyping and get an inference, please go to `_prototype_style_stack/` and simply run:
+To run the prototyping and get an inference, please go to `recommender/` and simply run:
 
 > `python run_model.py`
 

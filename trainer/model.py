@@ -10,7 +10,7 @@ from tensorflow.keras.models import Model
 from . import util
 
 # define cnn model
-def create_model(in_shape=(128, 128, 3), out_shape=215):
+def create_model(in_shape=(244, 244, 3), out_shape=215):
 	# load model
 	model = VGG16(include_top=False, input_shape=in_shape)
 	# mark loaded layers as not trainable
@@ -23,7 +23,7 @@ def create_model(in_shape=(128, 128, 3), out_shape=215):
 	model.get_layer('block5_pool').trainable = True
 	# add new classifier layers
 	flat1 = Flatten()(model.layers[-1].output)
-	class1 = Dense(128, activation='relu', kernel_initializer='he_uniform')(flat1)
+	class1 = Dense(244, activation='relu', kernel_initializer='he_uniform')(flat1)
 	output = Dense(out_shape, activation='sigmoid')(class1)
 	# define new model
 	model = Model(inputs=model.inputs, outputs=output)

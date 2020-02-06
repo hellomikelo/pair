@@ -8,15 +8,23 @@ import time
 # QUERY_IMAGE_PATH 		= '../data/bed/002.500.46.jpg'
 # QUERY_IMAGE_PATH 		= '../data/bed/002.392.33.jpg'
 # QUERY_IMAGE_PATH 		= '../data/bed/690.272.95.jpg'
-QUERY_IMAGE_PATH 		= '../data/objects/902.782.77.jpg'
-LAYER_NAMES 			= ['block1_conv1', 'block1_conv2']
 LIB_TYPE 				= 'chair'
 IMAGE_LIBRARY_PATH 		= '../data/' + LIB_TYPE + '/'
 FEATURE_LIBRARY_PATH 	= '../output/indexes/feat_lib_' + LIB_TYPE + '/'
-# OUTPUT_IMAGE_PATH 		= '../output/out-' + time.strftime('%Y%m%d-%H%M') + '.png'
-OUTPUT_IMAGE_PATH		= f'../output/{LIB_TYPE}-out-{LAYER_NAMES[0]}-{LAYER_NAMES[1]}.png'
-N_RESULTS 				= 4
 SAVE_LIB 				= False
+# LAYER_NAMES 			= ['block1_conv1', 'block1_conv2']
+LAYER_NAMES				= None
+TRUTH_FPATH				= '../data/text_data/item_to_room.p'
+
+QUERY_IMAGE_PATH 		= '../data/objects/902.782.77.jpg'
+
+MODEL_TYPE 				= 'transfer_learn' # 'transfer_learn' # 'vgg16' or 'transfer_learn'
+MODEL_PATH				= '../output/final_model.h5'
+
+OUTPUT_IMAGE_PATH 		= '../output/out-' + time.strftime('%Y%m%d-%H%M') + '.png'
+# OUTPUT_IMAGE_PATH		= f'../output/{LIB_TYPE}-out-{LAYER_NAMES[0]}-{LAYER_NAMES[1]}.png'
+N_RESULTS 				= 4
+
 # ==========================================================
 
 # ignore these
