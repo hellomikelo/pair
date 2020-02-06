@@ -1,4 +1,4 @@
 # Ignore these directories
+__pychache__
 output/
-_prototype/
 
