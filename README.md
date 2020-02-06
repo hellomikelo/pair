@@ -9,14 +9,6 @@ This repository contains 3 main components:
 ## Credits
 This project is built on top of Austin McKay's [Style Stack repo](https://github.com/TheAustinator/style-stack). It is also inspired by Greg Surma's [Style Transfer repo](https://github.com/gsurma/style_transfer/blob/master/style-transfer.ipynb) and Ivona Tautkute et al.'s [IKEA image dataset repo](https://github.com/yuanhunglo/ikea).
 
-Short explanation of the directories:
-
-* `recommender` module contains the recommender system based on Austin McKay's Style Stack
-* `trainer` module contains the transfer learning codes
-* `build` contains web page related files
-* `data` contains small amounts of data for prototyping
-* `tests` contains model tests
-
 ## Inference module
 ### Installation
 The model is tested on Python 3.6, with dependencies listed in `requirements.txt`. A few options to run the Pair install these Python dependencies, please run 
