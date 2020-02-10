@@ -9,6 +9,8 @@ import numpy as np
 import os
 import random
 import yaml
+import pickle
+import pandas as pd
 
 from PIL import Image, ImageFont, ImageDraw
 
@@ -16,7 +18,6 @@ def load_config(config_path):
     with open(config_path, 'r') as stream:
         try:
             config = yaml.safe_load(stream)
-            print(yaml.safe_load(stream))
         except yaml.YAMLError as exc:
             print(exc)
     return config
@@ -29,13 +30,13 @@ def load_image(path, target_size=None):
     x = preprocess_input(x)
     return img, x
 
-def save_image(results_paths, output_dir='../output/'):
+def save_image(results_paths, output_dir, im_width, im_height):
     print(f'==> Result image saved to {output_dir}')
-    combined = Image.new("RGB", (IMAGE_WIDTH*len(results_paths), IMAGE_HEIGHT))
+    combined = Image.new("RGB", (im_width*len(results_paths), im_height))
     x_offset = 0
     for image in map(Image.open, results_paths):
-        combined.paste(image.resize((IMAGE_WIDTH, IMAGE_HEIGHT)), (x_offset, 0))
-        x_offset += IMAGE_WIDTH
+        combined.paste(image.resize((im_width, im_height)), (x_offset, 0))
+        x_offset += im_width
     combined.save(output_dir) 
 
 def get_image_paths(images_dir, max_num_images=10000):
@@ -52,9 +53,9 @@ def get_image_paths(images_dir, max_num_images=10000):
     print(f'==> Keeping {len(image_paths)} image_paths to analyze')
     return image_paths
 
-def get_truth(filepath):
-    """ get items to room information """
-    f = open(os.path.join(args.data_dir, 'text_data/item_to_room.p'), 'rb')
+def get_grd_truth(filepath):
+    """ get items to room dataframe """
+    f = open(filepath, 'rb')
     # f = tf.gfile.Open(os.path.join(args.job_dir, 'text_data/item_to_room.p'), 'rb')
     data = pickle.load(f)
     data = {key: [value] for key, value in data.items()}
@@ -62,9 +63,22 @@ def get_truth(filepath):
     df = pd.DataFrame.from_dict(data, orient='index').reset_index()
     df.columns = ['file_name', 'room_name']
     # clean up file names
-    df['room_name'] = df['room_name'].map(lambda x: [args.data_dir + line.split('/', 1)[1] for line in x])
+    df['room_name'] = df['room_name'].map(lambda x: [line.split('/')[-1] for line in x])
     df['file_name'] = df.file_name.apply(lambda x: x.split('/')[-1])
     return df
+
+def get_hits_at_k(results, grd_truth):
+    """ calculate hit ratio at k as metric for recommendation quality"""
+    query_id = results['query_img'].split('/')[-1]
+    recom_ids = [fpath.split('/')[-1] for fpath in results['results_files_all']]
+    query_rooms = grd_truth[grd_truth['file_name'] == query_id]['room_name'].iloc[0]
+    hit_idx = None
+    for idx, recom_id in enumerate(recom_ids):
+        recom_rooms = grd_truth[grd_truth['file_name'] == recom_id]['room_name'].iloc[0]
+        if set(query_rooms) & set(recom_rooms): 
+            hit_idx = idx
+            break
+    return hit_idx
 
 def get_concatenated_images(image_paths, image_indices=None, thumb_height=300):
     if image_indices is not None: 

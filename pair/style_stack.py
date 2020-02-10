@@ -1,4 +1,4 @@
-from .utils import load_image, get_image_paths
+from .util import load_image, get_image_paths
 
 from abc import ABC, abstractclassmethod, abstractmethod
 import datetime as dt
@@ -353,9 +353,21 @@ class StyleStack(Stack):
         
         print(f'==> Query time: {index_time} ms')
         results_files = [self.file_mapping[i] for i in results_indices]
+        results_files = [fpath[1:] for fpath in results_files] # changes '../' to './'
+        results_files_all = [self.file_mapping[i] for i in indices]
+        
+        print(f'++> len(results_files_all) = {len(results_files_all)}')
+        print(f'++> len(file_mapping) = {len(self.file_mapping)}')
+        print(f'++> len(weighted_dist_dict) = {len(weighted_dist_dict)}')
+        print(f'++> len(proximal_indices) = {len(proximal_indices)}')
+        print(f'++> len(dist_dict) = {len(dist_dict)}')
+        print(f'++> len(query_gram_dict) = {len(query_gram_dict)}')
+
+        results_files_all = [fpath[1:] for fpath in results_files_all] # changes '../' to './'
         self.results_files = results_files
         results = {
             'query_img': image_path,
+            'results_files_all': results_files_all,
             'results_files': self.results_files,
             'similarity_weights': embedding_weights,
             'model': self.model.name,

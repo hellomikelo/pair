@@ -1,5 +1,5 @@
 from pair.style_stack import StyleStack
-from pair.utils import plot_results, save_image, fbeta, load_config
+from pair.util import plot_results, save_image, fbeta, load_config, get_hits_at_k, get_grd_truth
 
 import os
 from itertools import product
@@ -10,9 +10,9 @@ from tensorflow.keras.optimizers import SGD
 
 def main():    
     cfg = load_config('config.yml')
-    print(f'model type: {cfg["MODEL_TYPE"]}')
-    
-    print(f'{cfg["MODEL_TYPE"] is "transfer_learn"}')
+    print(f'==> Model type: \t{cfg["MODEL_TYPE"]}')
+    print(f'==> Query image: \t{cfg["QUERY_IMAGE_PATH"]}') 
+    print(f'==> FEAT_LIB: \t{cfg["IMAGE_LIBRARY_PATH"]}\n')
 
     if os.path.exists(cfg['FEATURE_LIBRARY_PATH']):
         # library exists, load model
@@ -59,15 +59,18 @@ def main():
         n_results=cfg['N_RESULTS'], 
         write_output=False);    
 
-    # TODO
-    # truth = get_truth(cfg['TRUTH_FPATH'])
+    # get item-to-room df
+    grd_truth = get_grd_truth(cfg['ITEM2ROOM'])
 
-    # TODO: hit rate at k
-    # eval = stack.hits_at_k(truth)
+    # get hit rate at k
+    hit_idx = get_hits_at_k(results, grd_truth)
     
-    # print(f'==> Query finished. Saving result image')
-    # save_image([cfg['QUERY_IMAGE_PATH']] + results['results_files'], cfg['OUTPUT_IMAGE_PATH'])
-    print(f'==> FINISHED!')
+    print(f'==> Query finished. \tHR@k: {hit_idx}. \tResult image saved at {cfg["OUTPUT_IMAGE_PATH"]}')
+    save_image(
+        results_paths=[cfg['QUERY_IMAGE_PATH']] + results['results_files'], 
+        output_dir=cfg['OUTPUT_IMAGE_PATH'],
+        im_width=cfg['IMAGE_WIDTH'],
+        im_height=cfg['IMAGE_HEIGHT'])
 
 if __name__ == '__main__':
     main()

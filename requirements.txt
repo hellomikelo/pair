@@ -13,6 +13,7 @@ scipy
 scikit-learn
 pandas
 pillow
+pickle
 pyyaml
 
 
