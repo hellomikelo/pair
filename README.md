@@ -22,7 +22,7 @@ To get a sample recommendation, please run:
 
 > `python run_pair.py`
 
-If you'd like to play around with different images, please change parameters in `config.yml` and re-run `run_pair.py`.
+The first time you run inference you will have to generate the feature embeddings, which will take \~30 seconds for each furniture type. If you'd like to play around with different images, please change parameters in `config.yml` and re-run `run_pair.py`.
 
 The prototype will take as input path to an image of a table and the model will recommend different chairs based on the table's style and content. Result image will be saved in the `output/` directory. Inference time is on the order of seconds. 
 
@@ -42,8 +42,11 @@ pair-trainer:v1`
 ### Usage
 To run transfer learning module, run
 > `python -m trainer.task --data-dir './data/' --out-dir './output/' --num-epochs 25 --test-size 0.1`
-
 ## Streamlit app
+<p align="center"> 
+	<img src="build/pair-demo-final.gif">
+</p>
+
 ### Installation
 
 To run the demo, make sure streamlit is installed, then simply run 
