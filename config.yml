@@ -1,4 +1,5 @@
-QUERY_IMAGE_PATH: ./data/couch/302.651.12.jpg
+# QUERY_IMAGE_PATH: ./data/couch/690.203.31.jpg
+QUERY_IMAGE_PATH: ./data/chair/502.954.72.jpg
 IMAGE_LIBRARY_PATH: ./data/dining_table/
 FEATURE_LIBRARY_PATH: ./output/indexes/feat_lib_dining_table/
 
@@ -14,4 +15,4 @@ IMAGE_WIDTH: 500
 IMAGE_HEIGHT: 500
 
 SAVE_LIB: False
-N_RESULTS: 4
+N_RESULTS: 6

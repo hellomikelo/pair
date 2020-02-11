@@ -52,26 +52,51 @@ def main():
         else: 
             print(f'==> Not saving embedding library')
 
-    print(f'==> Run query on new image')
-    results = stack.query(
-        image_path=cfg['QUERY_IMAGE_PATH'], 
-        lib_path=cfg['IMAGE_LIBRARY_PATH'],
-        embedding_weights=None, 
-        n_results=cfg['N_RESULTS'], 
-        write_output=False);        
+    # manually selected query images for checking HR@n
+    query_imgs = [
+        '202.493.30.jpg',
+        '002.110.88.jpg',
+        '090.066.63.jpg',
+        '102.604.60.jpg',
+        '003.015.26.jpg',
+        '002.460.78.jpg',
+        '102.191.78.jpg',
+        '602.460.80.jpg',
+        '900.954.28.jpg',
+        '791.278.07.jpg',
+        '702.068.04.jpg',
+        '901.011.13.jpg',
+        '991.278.11.jpg',
+        '102.335.32.jpg',
+        '500.395.52.jpg',
+        '102.051.81.jpg',
+        '701.032.50.jpg',
+        '902.396.67.jpg',
+        '490.904.81.jpg',
+        '502.954.72.jpg'
+    ]
 
-    # get item-to-room df
     grd_truth = get_grd_truth(cfg['ITEM2ROOM'])
+    hit_idx = []
+    for i, query_img in enumerate(query_imgs):
+        # print(f'==> Run query on {query_img}')
+        results = stack.query(
+            image_path='./data/chair/' + query_img, 
+            lib_path=cfg['IMAGE_LIBRARY_PATH'],
+            embedding_weights=None, 
+            n_results=cfg['N_RESULTS'], 
+            write_output=False);        
+        # get hit rate at k
+        hit_idx.append(get_hits_at_k(results, grd_truth))
+        print(f'{query_img} \tHR@n: {hit_idx[i]} \tlen(results_files_all): {len(results["results_files_all"])}')
 
-    # get hit rate at k
-    hit_idx = get_hits_at_k(results, grd_truth)
-    
-    print(f'==> Query finished. \tHR@k: {hit_idx}. \tResult image saved at {cfg["OUTPUT_IMAGE_PATH"]}')
-    save_image(
-        results_paths=[cfg['QUERY_IMAGE_PATH']] + results['results_files'], 
-        output_dir=cfg['OUTPUT_IMAGE_PATH'],
-        im_width=cfg['IMAGE_WIDTH'],
-        im_height=cfg['IMAGE_HEIGHT'])
+    # print output
+    hra5 = sum([i <= 5 for i in hit_idx if i is not None])
+    hra10 = sum([i <= 10 for i in hit_idx if i is not None])
+    hra20 = sum([i <= 20 for i in hit_idx if i is not None])
+    print(f'HR@5: {hra5} ({hra5/len(hit_idx)}%)')
+    print(f'HR@10: {hra10} ({hra10/len(hit_idx)}%)')
+    print(f'HR@20: {hra20} ({hra20/len(hit_idx)}%)')
 
 if __name__ == '__main__':
     main()

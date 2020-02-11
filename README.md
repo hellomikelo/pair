@@ -1,13 +1,12 @@
-# Pair
+![logo](build/pair-logo.png "Pair logo")
+
 Pair is an image-based product recommender for matching visually similar products across categories. User provides an image of a preferred furniture, and the model will return furniture from another categories that have similar design. Pair uses a convolutional neural network (VGG16) to learn subtle design elements of furnitures and save the design features in a library. As the customer's preferred image is fed in, the image is queried against the design feature library to obtain product recommendations.
 
-This repository contains 3 main components:
-1. __Inference module__ (`pair/`): The main recommender engine. It generates design feature extractors and makes furniture recommendations based on user input images
-2. __Training module__ (`trainer/`): It performs transfer learning on a pre-trained VGG16 network to learn to classify furnitures based on the type of rooms they may appear in. The purpose is to improve the design feature extractors so it can better recognize complementary furnitures
-3. __Streamlit app__ (`run_streamlit_app.py`): A demo of Pair built using the streamlit package. To run the demo, simply run `streamlit run streamlit_app.py`
+This repository contains 3 main components:  
 
-## Credits
-This project is built on top of Austin McKay's [Style Stack repo](https://github.com/TheAustinator/style-stack). It is also inspired by Greg Surma's [Style Transfer repo](https://github.com/gsurma/style_transfer/blob/master/style-transfer.ipynb) and Ivona Tautkute et al.'s [IKEA image dataset repo](https://github.com/yuanhunglo/ikea).
+1. [__Inference module__](#inference-module) (`pair/`): The main recommender engine. It generates design feature extractors and makes furniture recommendations based on user input images  
+2. [__Training module__](#training-module) (`trainer/`): It performs transfer learning on a pre-trained VGG16 network to learn to classify furnitures based on the type of rooms they may appear in. The purpose is to improve the design feature extractors so it can better recognize complementary furnitures  
+3. [__Streamlit app__](#streamlit-app) (`run_streamlit_app.py`): A demo of Pair built using the streamlit package.   
 
 ## Inference module
 ### Installation
@@ -42,8 +41,20 @@ pair-trainer:v1`
 
 ### Usage
 To run transfer learning module, run
-> `python -m trainer.task --data-dir './data/' --out-dir './output/' --num- epochs 25 --test-size 0.1`
+> `python -m trainer.task --data-dir './data/' --out-dir './output/' --num-epochs 25 --test-size 0.1`
+
+## Streamlit app
+### Installation
+
+To run the demo, make sure streamlit is installed, then simply run 
+> `streamlit run streamlit_app.py`
+
+## Credits
 
 ### Dataset
-A small dataset from Ivona Tautkute et al. ([IKEA image dataset](https://github.com/yuanhunglo/ikea)) is used to create the minimal viable product.
+The IKEA catalog image dataset from Ivona Tautkute et al. ([IKEA image dataset](https://github.com/yuanhunglo/ikea)) is used to create the minimal viable product.
 
+### Codes
+This project is built on top of   
+* Austin McKay's [Style Stack repo](https://github.com/TheAustinator/style-stack)  
+* Inspired by Greg Surma's [Style Transfer repo](https://github.com/gsurma/style_transfer/blob/master/style-transfer.ipynb) 

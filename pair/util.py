@@ -11,6 +11,7 @@ import random
 import yaml
 import pickle
 import pandas as pd
+import math
 
 from PIL import Image, ImageFont, ImageDraw
 
@@ -30,13 +31,26 @@ def load_image(path, target_size=None):
     x = preprocess_input(x)
     return img, x
 
+# def save_image(results_paths, output_dir, im_width, im_height):
+#     print(f'==> Result image saved to {output_dir}')
+#     combined = Image.new("RGB", (im_width*len(results_paths), im_height))
+#     x_offset = 0
+#         combined.paste(image.resize((im_width, im_height)), (x_offset, 0))
+#         x_offset += im_width
+#     combined.save(output_dir) 
+
 def save_image(results_paths, output_dir, im_width, im_height):
     print(f'==> Result image saved to {output_dir}')
     combined = Image.new("RGB", (im_width*len(results_paths), im_height))
     x_offset = 0
+    count = 0
     for image in map(Image.open, results_paths):
-        combined.paste(image.resize((im_width, im_height)), (x_offset, 0))
+        img = image.resize((im_width, im_height))
+        draw = ImageDraw.Draw(img)
+        draw.text((20,20), results_paths[count], (0,0,0))
+        combined.paste(img, (x_offset, 0))
         x_offset += im_width
+        count += 1
     combined.save(output_dir) 
 
 def get_image_paths(images_dir, max_num_images=10000):

@@ -1,8 +1,7 @@
 # To install these Python dependencies, please type:
-# 	pip install -r requirements.txt
-#
+# > pip install -r requirements.txt
 # or if you use conda:
-# 	conda install --file requirements.txt
+# > conda install --file requirements.txt
 
 faiss-cpu
 streamlit
@@ -17,6 +16,7 @@ pickle
 pyyaml
 
 
+# other notes: 
 # if faiss-cpu fails to install using default channels, use
 # conda install -c pytorch faiss-cpu
 

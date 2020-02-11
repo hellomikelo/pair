@@ -202,7 +202,7 @@ class StyleStack(Stack):
                 the `layer_range`. Note that the underlying indexes are not
                 saved unless the `inst.save` method is run.
         """
-        inst = cls()
+        inst = cls(lib_path)
         inst.vector_buffer_size = vector_buffer_size
         inst.index_buffer_size = index_buffer_size
         inst.pca_dim = pca_dim
@@ -351,20 +351,24 @@ class StyleStack(Stack):
         end = dt.datetime.now()
         index_time = (end - start).microseconds / 1000
         
-        print(f'==> Query time: {index_time} ms')
+        # print(f'==> Query time: {index_time} ms')
         results_files = [self.file_mapping[i] for i in results_indices]
-        results_files = [fpath[1:] for fpath in results_files] # changes '../' to './'
-        results_files_all = [self.file_mapping[i] for i in indices]
         
-        print(f'++> len(results_files_all) = {len(results_files_all)}')
-        print(f'++> len(file_mapping) = {len(self.file_mapping)}')
-        print(f'++> len(weighted_dist_dict) = {len(weighted_dist_dict)}')
-        print(f'++> len(proximal_indices) = {len(proximal_indices)}')
-        print(f'++> len(dist_dict) = {len(dist_dict)}')
-        print(f'++> len(query_gram_dict) = {len(query_gram_dict)}')
-
-        results_files_all = [fpath[1:] for fpath in results_files_all] # changes '../' to './'
+        results_files_all = [self.file_mapping[i] for i in indices]
+        if results_files[0][:2] == '..':
+            # TODO: debug
+            # changes '../' to './'
+            results_files = [fpath[1:] for fpath in results_files] 
+            results_files_all = [fpath[1:] for fpath in results_files_all]
         self.results_files = results_files
+
+        # print(f'++> len(results_files_all) = {len(results_files_all)}')
+        # print(f'++> len(file_mapping) = {len(self.file_mapping)}')
+        # print(f'++> len(weighted_dist_dict) = {len(weighted_dist_dict)}')
+        # print(f'++> len(proximal_indices) = {len(proximal_indices)}')
+        # print(f'++> len(dist_dict) = {len(dist_dict)}')
+        # print(f'++> len(query_gram_dict) = {len(query_gram_dict)}')
+
         results = {
             'query_img': image_path,
             'results_files_all': results_files_all,

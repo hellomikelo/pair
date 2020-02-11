@@ -1,3 +1,5 @@
+# Dockerfile for building streamline app
+
 # pull miniconda image
 FROM continuumio/miniconda3
 
