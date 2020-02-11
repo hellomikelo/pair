@@ -1,0 +1,18 @@
+# QUERY_IMAGE_PATH: ./data/couch/690.203.31.jpg
+QUERY_IMAGE_PATH: ./data/chair/502.954.72.jpg
+IMAGE_LIBRARY_PATH: ./data/dining_table/
+FEATURE_LIBRARY_PATH: ./output/indexes/feat_lib_dining_table/
+
+ITEM2ROOM: ./data/text_data/item_to_room.p
+OUTPUT_IMAGE_PATH: ./output/pair-output.png
+
+MODEL_TYPE: vgg16 # transfer_learn, vgg16
+MODEL_PATH: ./output/final_model.h5
+LAYER_NAMES: 
+  - block1_conv1
+  - block1_conv2
+IMAGE_WIDTH: 500
+IMAGE_HEIGHT: 500
+
+SAVE_LIB: False
+N_RESULTS: 6

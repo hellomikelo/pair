@@ -1,1 +1,23 @@
-Package dependencies to be added...
+# To install these Python dependencies, please type:
+# > pip install -r requirements.txt
+# or if you use conda:
+# > conda install --file requirements.txt
+
+faiss-cpu
+streamlit
+tensorflow>=1.15
+numpy
+matplotlib
+scipy
+scikit-learn
+pandas
+pillow
+pickle
+pyyaml
+
+
+# other notes: 
+# if faiss-cpu fails to install using default channels, use
+# conda install -c pytorch faiss-cpu
+
+
