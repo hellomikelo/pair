@@ -52,6 +52,9 @@ To run transfer learning module, run
 To run the demo, make sure streamlit is installed, then simply run 
 > `streamlit run streamlit_app.py`
 
+To create a containerized application, comment out `faiss-cpu` in `requirements.txt` then run
+> `docker build -t pair-streamlit:v1 -f Dockerfile.streamlit .`
+
 ## Credits
 
 ### Dataset
