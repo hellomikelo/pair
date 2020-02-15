@@ -6,7 +6,7 @@ This repository contains 3 main components:
 
 1. [__Inference module__](#inference-module) (`pair/`): The main recommender engine. It generates design feature extractors and makes furniture recommendations based on user input images  
 2. [__Training module__](#training-module) (`trainer/`): It performs transfer learning on a pre-trained VGG16 network to learn to classify furnitures based on the type of rooms they may appear in. The purpose is to improve the design feature extractors so it can better recognize complementary furnitures  
-3. [__Streamlit app__](#streamlit-app) (`run_streamlit_app.py`): A demo of Pair built using the streamlit package   
+3. [__Streamlit app__](#streamlit-app) (`run_streamlit_app.py`): A demo of Pair built using the streamlit package (go [here](http://bit.ly/pair-demo) for live demo)
 
 ## Inference module
 ### Installation
