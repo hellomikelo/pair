@@ -3,8 +3,8 @@
 # or if you use conda:
 # > conda install --file requirements.txt
 
-# uncomment if installing using pip (NOT needed for building docker image. Will "Illegal instruction" error if used)
-# faiss-cpu 
+# uncomment if installing using pip (NOT needed for building docker image. Will return "Illegal instruction" error if used)
+faiss-cpu 
 streamlit
 tensorflow>=1.15
 numpy
