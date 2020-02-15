@@ -17,6 +17,10 @@ import random
 import re
 import yaml
 
+import streamlit as st
+import _thread
+import tensorflow
+
 class Stack(ABC):
     models = {
         'densenet121': apps.densenet.DenseNet121,
@@ -113,7 +117,6 @@ class Stack(ABC):
     @file_mapping.setter
     def file_mapping(self, value):
         self._file_mapping = value
-
 
 class StyleStack(Stack):
     """
@@ -218,7 +221,10 @@ class StyleStack(Stack):
         inst._build_index(lib_path)
         return inst
 
-    @classmethod
+    # @st.cache(hash_funcs={_thread.LockType: type, _thread.RLock: type})
+
+    @classmethod 
+    @st.cache(hash_funcs={_thread.LockType: type, _thread.RLock: type}, allow_output_mutation=True)
     def load(cls, lib_path, layer_range=None, model=None):
         """
 
@@ -351,7 +357,7 @@ class StyleStack(Stack):
         end = dt.datetime.now()
         index_time = (end - start).microseconds / 1000
         
-        # print(f'==> Query time: {index_time} ms')
+        print(f'==> Query time: {index_time} ms')
         results_files = [self.file_mapping[i] for i in results_indices]
         
         results_files_all = [self.file_mapping[i] for i in indices]
@@ -361,13 +367,6 @@ class StyleStack(Stack):
             results_files = [fpath[1:] for fpath in results_files] 
             results_files_all = [fpath[1:] for fpath in results_files_all]
         self.results_files = results_files
-
-        # print(f'++> len(results_files_all) = {len(results_files_all)}')
-        # print(f'++> len(file_mapping) = {len(self.file_mapping)}')
-        # print(f'++> len(weighted_dist_dict) = {len(weighted_dist_dict)}')
-        # print(f'++> len(proximal_indices) = {len(proximal_indices)}')
-        # print(f'++> len(dist_dict) = {len(dist_dict)}')
-        # print(f'++> len(query_gram_dict) = {len(query_gram_dict)}')
 
         results = {
             'query_img': image_path,

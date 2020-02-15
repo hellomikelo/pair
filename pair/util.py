@@ -44,6 +44,8 @@ def save_image(results_paths, output_dir, im_width, im_height):
     combined = Image.new("RGB", (im_width*len(results_paths), im_height))
     x_offset = 0
     count = 0
+
+    # TODO: make output directory if it doesn't exist
     for image in map(Image.open, results_paths):
         img = image.resize((im_width, im_height))
         draw = ImageDraw.Draw(img)
@@ -99,7 +101,8 @@ def get_concatenated_images(image_paths, image_indices=None, thumb_height=300):
         image_paths = [image_paths[i] for i in image_indices]
     thumbs = []
     for path in image_paths:
-        img = image.load_img(path[1:]) # [1:] to access current folder directory
+        # img = image.load_img(path[1:]) # [1:] to access current folder directory
+        img = image.load_img(path) # [1:] to access current folder directory
         img = img.resize((int(img.width * thumb_height / img.height), thumb_height))
         thumbs.append(img)
     concat_image = np.concatenate([np.asarray(t) for t in thumbs], axis=1)

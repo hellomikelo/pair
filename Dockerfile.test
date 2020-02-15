@@ -4,13 +4,11 @@
 FROM continuumio/miniconda3
 
 # copy local files into container
-COPY streamlit_app.py /tmp/
+# COPY streamlit_app.py /tmp/
 COPY requirements.txt /tmp/
-COPY pair /tmp/pair
-COPY output/indexes /tmp/output/indexes
-COPY data /tmp/data
-# .streamlit for something to do with making enableCORS=False
-COPY .streamlit /tmp/.streamlit 
+# COPY pair /tmp/pair
+# COPY output/indexes /tmp/output/indexes
+# COPY data /tmp/data
 
 # install python 3.6 (needed to work with tensor flow) and faiss
 RUN conda install python=3.6
