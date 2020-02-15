@@ -22,9 +22,9 @@ To get a sample recommendation, please run:
 
 > `python run_pair.py`
 
-The first time you run inference you will have to generate the feature embeddings, which will take \~30 seconds for each furniture type. If you'd like to play around with different images, please change parameters in `config.yml` and re-run `run_pair.py`.
+The first time you run inference you will have to generate the feature embeddings, which will take \~30 seconds for each furniture type. If you'd like to play around with different images, please change parameters in `config.yml` and re-run `run_pair.py`. 
 
-The prototype will take as input path to an image of a table and the model will recommend different chairs based on the table's style and content. Result image will be saved in the `output/` directory. Inference time is on the order of seconds. 
+The prototype will take as input path to an image of a table and the model will recommend different chairs based on the table's style and content. Result image will be saved in the `./output/pair-output.png`. Inference time is on the order of seconds. 
 
 ## Training module
 ### Installation 
