@@ -1,11 +1,13 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from pair.utils import plot_results, save_image, get_result_images, build_montages, load_image
+from pair.util import plot_results, save_image, get_result_images, build_montages, load_image
 from pair.style_stack import StyleStack
 import os
 import math
 import random
+
+import tensorflow.keras.applications as apps
 
 st.title('Pair demo: IKEA furniture collection recommender')
 st.markdown(
@@ -54,6 +56,9 @@ lib_option = st.sidebar.selectbox(
 	('bed', 'chair', 'clock', 'couch', 'dining_table', 'plant_pot'),
 	key='query',
 	index=4)
+
+model = apps.vgg16.VGG16(weights='imagenet', include_top=False)
+st.text(type(model))
 
 FEAT_LIB_PATH = os.path.join(FEAT_LIB_ROOT, 'feat_lib_'+lib_option+'/')
 assert os.path.isdir(FEAT_LIB_PATH), 'Sorry! A library for this furniture does not exist yet.'

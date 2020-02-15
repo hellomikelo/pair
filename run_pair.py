@@ -15,10 +15,15 @@ def main():
     print(f'==> Query image: \t{cfg["QUERY_IMAGE_PATH"]}') 
     print(f'==> FEAT_LIB: \t{cfg["IMAGE_LIBRARY_PATH"]}\n')
 
+    if not os.path.exists('./output/'):
+        os.makedirs('./output/')
+
     if os.path.exists(cfg['FEATURE_LIBRARY_PATH']):
         # library exists, load model
         print(f'==> Feature library exists. Loading...')
-        stack = StyleStack.load(cfg['FEATURE_LIBRARY_PATH'])
+        stack = StyleStack.load(
+            lib_path=cfg['FEATURE_LIBRARY_PATH'],
+            layer_range=cfg['LAYER_NAMES'])
     else: 
         print(f'==> Feature library does not exist. Building one now...')
         # initialize pre-trained model
